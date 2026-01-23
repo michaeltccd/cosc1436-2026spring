@@ -22,3 +22,4 @@ The repository is laid out in a way to make it easier for you to work with durin
 - `.git` is a core Git folder. Never touch or modify this folder. Doing so will potentially prevent you from syncing with Github.
 - `.gitattributes` is a core Git file. Do not touch or remove this file.
 - `.gitignore` is a core Git file. Do not touch or remove this file.
+
