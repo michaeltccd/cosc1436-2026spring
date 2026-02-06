@@ -3,6 +3,15 @@
  * COSC 1436 Spring 2026
  */
 #include <iostream>
+#include <string>
+
+// Custom types
+struct Point
+{
+    //Declare the variables that make up the type
+    int x;  // Field
+    int y;
+};
 
 //Entry point of your program
 void main()
@@ -137,11 +146,103 @@ void main()
     //int someVariable; someVariable = 0;
 
     // Read an int from user
-    std::cin >> someVariable;
+    //std::cin >> someVariable;
 
     int anotherValue = 10, anotherValueAgain = 20;
 
     //Print out int
     std::cout << someVariable;
 
+    // Arithmetic operators
+    //  + - * / % (binary)
+    //  + - (unary)
+
+    // integer division problem:: int / int => int
+    int quotent = 10 / 3;  // int / int => int
+
+    // modulus - remainder when you divide 2 ints
+    int remainder = 10 % 3; //1
+
+    int negativeRemainder = -remainder;
+    quotent = +quotent;
+
+    double actualQuotent = 10.0 / 3.0;  // double / double -> double
+
+    //Calculate perimeter of rectangle
+    std::cout << "Enter length? ";
+    std::cin >> length;
+
+    std::cout << "Enter width? ";
+    std::cin >> width;
+
+    // P  = 2L + 2W
+    perimeter = length + length + width + width;
+    std::cout << "Perimeter = " << perimeter << std::endl;
+
+
+    // Scope - its lifetime; point of declaration until the block that contains it ends
+    //aLocalVariable = 20;
+    int aLocalVariable = 0;
+    aLocalVariable = 10;
+
+    //Start a new block
+    {
+        double blockVariableA = 0;
+
+        // Can access var declared in block + any parent blocks
+        blockVariableA = 10;
+        aLocalVariable = 20;
+
+        // Can redeclare a variable from a parent scope
+        //double length;
+        length = 80;
+    }
+
+    std::cout << length << std::endl;
+    //blockVariableA no longer accessible
+
+    // C++ strings
+    //  - Not a primitive
+    //  - Only usable in C++
+    //  - Use = for assignment
+    //  - Use + for concatenating 2 string values
+    std::string someStringValue;
+    someStringValue = "Bob";
+    someStringValue = someStringValue + " How are you?";
+
+    // Assignment
+    //  - Expression as well
+    //  - Value is value of variable after assignment
+    //  - Can chain assignment togeth
+    length = width = perimeter = 0;
+
+    // Named constants
+    //   Literal : 25
+    //   Variable : T id = 25;
+    // const_decl ::= const T id = E;
+    // Casing: Pascal or all uppercase
+    // Must be a compile time constant - must be calculatable at compile time
+    //  - Literals
+    //  - Simple math expressions with constant expressions
+    //      4+5, MaximumStudents, MaximumStudents - 10 
+    const int MAX_SIZE = 25;
+    const int MaximumStudents = 50;
+
+    //Change value at runtime
+    //MaximumStudents = 40;  Cannot write to constant
+
+    int largestNumberOfStudents = 25; //Using the literal
+    //largestNumberOfStudents = maximumStudents; //Using the variable
+    largestNumberOfStudents = MaximumStudents;  // Using constant
+
+    // Create and get input for a point
+    Point left;
+
+    std::cout << "Enter the X value: ";
+    std::cin >> left.x;
+
+    std::cout << "Enter the Y value: ";
+    std::cin >> left.y;
+
+    std::cout << "(" << left.x << ", " << left.y << ")" << std::endl;
 }
