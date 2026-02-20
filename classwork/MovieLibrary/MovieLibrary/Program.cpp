@@ -27,7 +27,57 @@ struct Movie
 
 void main()
 {
+    // Display menu
+    std::cout << "Main Menu" << std::endl;
+    std::cout << "------------" << std::endl;
+    std::cout << "A)dd Movie" << std::endl;
+    std::cout << "E)dit Movie" << std::endl;
+    std::cout << "D)elete Movie" << std::endl;
+    std::cout << "V)iew Movie" << std::endl;
+    std::cout << "? ";
+
+    char choice;
+    std::cin >> choice;
+    
+    //Handle menu choice
+    if (choice == 'A' || choice == 'a')
+        //TODO: Move addmovie logic here
+        std::cout << "Add not implemented" << std::endl;
+    else if (choice == 'E' || choice == 'e')
+        std::cout << "Edit not implemented" << std::endl;
+    else if (choice == 'D' || choice == 'd')
+        std::cout << "Delete not implemented" << std::endl;
+    else if (choice == 'V' || choice == 'v')
+        std::cout << "View not implemented" << std::endl;
+    else
+        std::cout << "ERROR: Invalid option" << std::endl;
+    
+    //if (true)
+    //{
+    //    if (false)
+    //} else
+    //    // This is false if true
+    //    ;
+
+    // Logical operators 
+    //   log_expr ::= Eb log_op Eb
+    //               | ! Eb
+    //   log_op   ::= && (logical AND) 
+    //                || (logical OR)
+    //  Short circuit evaluation applies to logical AND and OR
+    // Truth table
+    //  A   B   &&   ||
+    //  ---------------
+    //  F   F   F    F
+    //  F   T   F    T
+    //  T   F   F    T
+    //  T   T   T    T
+
+    // Add movie logic
     Movie movie;
+
+    //Reset input buffer
+    std::cin.ignore(INT32_MAX, '\n');  
 
     //Prompt for movie details
     std::cout << "Enter title (required): ";
@@ -57,7 +107,7 @@ void main()
     std::cin >> movie.releaseYear;
 
     //ReleaseYear >= 1900 and <= 2100
-    if (movie.releaseYear < 1900)
+    /*if (movie.releaseYear < 1900)
     {
         std::cout << "ERROR: Release Year must be at least 1900" << std::endl;
         movie.releaseYear = 1900;
@@ -65,6 +115,15 @@ void main()
     if (movie.releaseYear > 2100)
     {
         std::cout << "ERROR: Release Year must be no more than 2100" << std::endl;
+        movie.releaseYear = 1900;
+    }*/
+    // if (A && B || C && D)
+    // if ((A && B) || (C && D))
+    // if (A || B && C || D)
+    // if (A || (B && C) || D)
+    if (movie.releaseYear < 1900 || movie.releaseYear > 2100)
+    {
+        std::cout << "ERROR: Release Year must be between 1900 and 2100" << std::endl;
         movie.releaseYear = 1900;
     }
 
@@ -76,20 +135,31 @@ void main()
     std::cin >> isClassic;
 
     // If statement
-    //    if_stmt ::= if (Eb) S;
+    //    if_stmt ::= if (Eb) S
+    //                [ else S ] ;
+    // Else always goes with immediately preceding if
     //
     //Translate to boolean if input is Y then true
-    if (isClassic == 'Y')
+    //movie.isClassic = isClassic == 'Y' || isClassic == 'y';
+    if (isClassic == 'Y' || isClassic == 'y')
         movie.isClassic = true;
-    if (isClassic == 'y')
-        movie.isClassic = true;
+    else if (isClassic == 'N' || isClassic == 'n')
+        movie.isClassic = false;
+    else
+    {
+        std::cout << "ERROR: Must be Y or N" << std::endl; // != Y y N n
+        movie.isClassic = false;
+    } 
+    //if (isClassic == 'y')
+    //    movie.isClassic = true;
 
     //Validate classic
-    if (isClassic != 'Y')
+    /*if (isClassic != 'Y')
         if (isClassic != 'y')
             if (isClassic != 'N')
-                if (isClassic != 'n')
-                    std::cout << "ERROR: Must be Y or N" << std::endl; // != Y y N n
+                if (isClassic != 'n')*/
+    //if (isClassic != 'Y' && isClassic != 'y' && isClassic != 'N' && isClassic != 'n')
+    //    std::cout << "ERROR: Must be Y or N" << std::endl; // != Y y N n
 
     //Display movie details
     std::cout << movie.title << " (" << movie.releaseYear << ")" << std::endl;
