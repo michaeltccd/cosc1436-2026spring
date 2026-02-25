@@ -40,18 +40,52 @@ void main()
     std::cin >> choice;
     
     //Handle menu choice
-    if (choice == 'A' || choice == 'a')
-        //TODO: Move addmovie logic here
-        std::cout << "Add not implemented" << std::endl;
-    else if (choice == 'E' || choice == 'e')
-        std::cout << "Edit not implemented" << std::endl;
-    else if (choice == 'D' || choice == 'd')
-        std::cout << "Delete not implemented" << std::endl;
-    else if (choice == 'V' || choice == 'v')
-        std::cout << "View not implemented" << std::endl;
-    else
-        std::cout << "ERROR: Invalid option" << std::endl;
-    
+    //if (choice == 'A' || choice == 'a')
+    //    //TODO: Move addmovie logic here
+    //    std::cout << "Add not implemented" << std::endl;
+    //else if (choice == 'E' || choice == 'e')
+    //    std::cout << "Edit not implemented" << std::endl;
+    //else if (choice == 'D' || choice == 'd')
+    //    std::cout << "Delete not implemented" << std::endl;
+    //else if (choice == 'V' || choice == 'v')
+    //    std::cout << "View not implemented" << std::endl;
+    //else
+    //    std::cout << "ERROR: Invalid option" << std::endl;
+    // 
+    // switch_stmt ::= switch (E) { case_statement* }
+    // case_stmt ::= case label : S ;
+    // label ::= E (compile time constant)
+    // Replacement for: if (E == V) elseif (E == V2) elseif ...
+    // Limitations
+    //   1. Switch expression must be an integral or char
+    //   2. All case labels must be compile time constant integers
+    //   3. Case labels must be unique  
+    // To prevent fallthrough from one case to the next, end your case statements with break    
+    switch (choice)
+    {
+        //TODO: Add movie logic here...
+        case 'A':
+        //{
+        //    //choice = 'a';
+        //    //std::cout << "hello";
+        //    std::cout << "Add not implemented" << std::endl; 
+        //    break;
+        //}
+        case 'a': std::cout << "Add not implemented" << std::endl; break;
+
+        case 'E': 
+        case 'e': std::cout << "Edit not implemented" << std::endl; break;
+
+        case 'D': //std::cout << "Delete not implemented" << std::endl; break;
+        case 'd': std::cout << "Delete not implemented" << std::endl; break;
+
+        case 'V': //std::cout << "View not implemented" << std::endl; break;
+        case 'v': std::cout << "View not implemented" << std::endl; break;
+        
+        //Everything else
+        default: std::cout << "ERROR: Invalid option" << std::endl; break;
+    }
+
     //if (true)
     //{
     //    if (false)
@@ -167,10 +201,16 @@ void main()
     std::cout << "Genre(s): " << movie.genres << std::endl;
     std::cout << "User Rating: " << movie.userRating << std::endl;
     
-    std::string classicIndicator = "No";
-    if (movie.isClassic)
-        classicIndicator = "Yes";
-    std::cout << "Classic? " << classicIndicator << std::endl;
+    // Conditional operator
+    //  conditional_op ::= Eb ? Et : Ef
+    // Replaces if-else when calculating a value
+    // Et and Ef must be same type
+    // Syntax may cause compiler errors in some cases so wrap in parens if necessary
+    //std::string classicIndicator = "No";
+    //if (movie.isClassic)
+    //    classicIndicator = "Yes";
+    //std::string classicIndicator = movie.isClassic ? "Yes" : "No";
+    std::cout << "Classic? " << (movie.isClassic ? "Yes" : "No") << std::endl;
 
     std::cout << movie.description << std::endl;
 
