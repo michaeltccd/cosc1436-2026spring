@@ -63,27 +63,26 @@ void main()
 {
     // Demo
     //int someValue = 20; 
-
+    //
     //// Side effect = consequences of evaluating the expression
-
     ////++someValue;   // prefix inc: Increments someValue by 1 and stores it back into someValue (someValue += 1)
     //std::cout << ++someValue << " " << someValue << std::endl;
-
+    //
     ////someValue++;   // postfix inc: Increments someValue by 1 and stores it back into someValue (someValue += 1)
     ////std::cout << someValue << std::endl;
     //std::cout << someValue++ << " " << someValue << std::endl;
-
+    //
     ////--someValue;   // prefix dec: Decrements someValue by 1 and stores it back into someValue (someValue -= 1)
     ////std::cout << someValue << std::endl;
     //std::cout << --someValue << " " << someValue << std::endl;
-
+    //
     ////someValue--;   // postfix decc: Decrements someValue by 1 and stores it back into someValue (someValue -= 1)
     ////    std::cout << someValue << std::endl;
     //std::cout << someValue-- << " " << someValue << std::endl;
     //
     //someValue = 20;
     //std::cout << someValue++ << " " << ++someValue << " " << someValue << std::endl;
-
+    //
     //someValue = 20;
     //if (++someValue > 30 || someValue-- < 10)
     //    std::cout << "Is true: ";
