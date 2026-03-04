@@ -183,28 +183,7 @@ void main()
         //Everything else
         default: std::cout << "ERROR: Invalid option" << std::endl; break;
     }
-
-    //if (true)
-    //{
-    //    if (false)
-    //} else
-    //    // This is false if true
-    //    ;
-
-    // Logical operators 
-    //   log_expr ::= Eb log_op Eb
-    //               | ! Eb
-    //   log_op   ::= && (logical AND) 
-    //                || (logical OR)
-    //  Short circuit evaluation applies to logical AND and OR
-    // Truth table
-    //  A   B   &&   ||
-    //  ---------------
-    //  F   F   F    F
-    //  F   T   F    T
-    //  T   F   F    T
-    //  T   T   T    T
-
+  
     // Add movie logic
     Movie movie;
 
@@ -246,21 +225,7 @@ void main()
     std::cout << "Enter release year (1900-2100): ";
     std::cin >> movie.releaseYear;
 
-    //ReleaseYear >= 1900 and <= 2100
-    /*if (movie.releaseYear < 1900)
-    {
-        std::cout << "ERROR: Release Year must be at least 1900" << std::endl;
-        movie.releaseYear = 1900;
-    }
-    if (movie.releaseYear > 2100)
-    {
-        std::cout << "ERROR: Release Year must be no more than 2100" << std::endl;
-        movie.releaseYear = 1900;
-    }*/
-    // if (A && B || C && D)
-    // if ((A && B) || (C && D))
-    // if (A || B && C || D)
-    // if (A || (B && C) || D)
+    //ReleaseYear >= 1900 and <= 2100        
     if (movie.releaseYear < 1900 || movie.releaseYear > 2100)
     {
         std::cout << "ERROR: Release Year must be between 1900 and 2100" << std::endl;
@@ -274,13 +239,6 @@ void main()
     std::cout << "Is classic (Y/N)? ";
     std::cin >> isClassic;
 
-    // If statement
-    //    if_stmt ::= if (Eb) S
-    //                [ else S ] ;
-    // Else always goes with immediately preceding if
-    //
-    //Translate to boolean if input is Y then true
-    //movie.isClassic = isClassic == 'Y' || isClassic == 'y';
     if (isClassic == 'Y' || isClassic == 'y')
         movie.isClassic = true;
     else if (isClassic == 'N' || isClassic == 'n')
@@ -289,18 +247,8 @@ void main()
     {
         std::cout << "ERROR: Must be Y or N" << std::endl; // != Y y N n
         movie.isClassic = false;
-    } 
-    //if (isClassic == 'y')
-    //    movie.isClassic = true;
-
-    //Validate classic
-    /*if (isClassic != 'Y')
-        if (isClassic != 'y')
-            if (isClassic != 'N')
-                if (isClassic != 'n')*/
-    //if (isClassic != 'Y' && isClassic != 'y' && isClassic != 'N' && isClassic != 'n')
-    //    std::cout << "ERROR: Must be Y or N" << std::endl; // != Y y N n
-
+    }     
+    
     //Display movie details
     std::cout << movie.title << " (" << movie.releaseYear << ")" << std::endl;
     std::cout << "Length (in minutes) " << movie.runLength << std::endl;
@@ -319,55 +267,4 @@ void main()
     std::cout << "Classic? " << (movie.isClassic ? "Yes" : "No") << std::endl;
 
     std::cout << movie.description << std::endl;
-
-    // Relational demo
-    ////Relational operators
-    //// rel_expr ::= Eb rel_op Eb => bool
-    //// rel_op ::= > >= < <= == !=
-    //// Precedence => below arithmetic but above equality, left associative
-    //bool isGreater = 4 > 5;  //false
-    //isGreater = 10 >= 3;     //true
-
-    //int x = 10, y = 20;
-    //bool areEqual = x == y;     //Equality
-    //bool areNotEqual = x != y;  //Inequality
-
-    //// Common C code for boolean since it didn't support it
-    //int isCorrect = 0;  //false
-    //isCorrect = 10;     //true
-
-    ////areEqual = x == y;  //false, equality
-    ////areEqual = x = y;   // true, assignment
-
-    ////areEqual = x == 10;
-    ////areEqual = x = 10;
-
-    //// When comparing to constants put the constant first
-    ////areEqual = 10 == x;
-    ////areEqual = 10 = x;
-
-    //// (In)Equality with floating point types
-    //float f1 = 1 / 3;
-    //float f2 = 100 / (100 / 30 * 100);
-
-    //// Do not use with floating point values
-    //areEqual = f1 == f2;  //Mathematically equal
-    //areEqual = f1 >= f2;
-
-    //// Can use with floating point with integer
-    //f1 = 100.0;
-    //areEqual = f1 == 100;   //True
-
-    //// Strings - works with relational
-    ////   Numeric comparison
-    ////   Case sensitive
-    ////   Locale insensitive (not good for sorting)
-    //std::string firstName = "Bob";
-    //std::string lastName = "bob";
-    //bool isSingularName = firstName == lastName;
-
-    ////Case insensitive string comparison
-    //// Use .c_str() to convert C++ string to C
-    //int result = _strcmpi("Bob", "bob");
-    //isSingularName = _strcmpi(firstName.c_str(), lastName.c_str()) == 0;  //Not equal != 0
 }
