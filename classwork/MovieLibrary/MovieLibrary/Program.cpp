@@ -87,6 +87,27 @@ void main()
     //if (++someValue > 30 || someValue-- < 10)
     //    std::cout << "Is true: ";
     //std::cout << someValue << std::endl;
+    // Demo nested loops
+    //int someValue = 10;
+    //for (int x = 0; x < 500; ++x)   // 50 iterations
+    //{        
+    //    for (int y = 0; y < 20; ++y)  //  20 * 50 = 1000
+    //    {
+    //        std::cout << x + y << std::endl;
+
+    //        if (y != 0 && y % 10 == 0)
+    //            break;
+    //    }
+
+    //    if (x != 0 && x % 10 == 0)
+    //    {
+    //        std::cout << "Quit? ";
+    //        int choice;
+    //        std::cin >> choice;
+    //        if (choice != 0)
+    //            break;
+    //    }
+    //}
 
     Movie movie;
 
@@ -201,6 +222,9 @@ void main()
                 //for (int x = 0, int y = 10; x < 20 && y > 0; ++x, --y)
                 //{}
 
+                // break_continue ::= break | continue
+                //  break - exits loop immediately
+                //  continue - exits current iteration and starts next iteration
                 //int genreCount = 0;
                 //while (genreCount < 5)
 //                int count = 0;
@@ -214,20 +238,29 @@ void main()
                     std::string genre;
                     std::getline(std::cin, genre);
 
+                    //if (genre == "")
+                    //    continue;
+
+                    //movie.genres += ", " + genre;
                     if (genre != "")
                     {
                         movie.genres += ", " + genre;
                         //++genreCount;
                     } else
-                        //genreCount = 5;
-                        //TODO: Fix this
-                        count = 5;
+                        //genreCount = 5;                        
+                    //    //count = 5;
+                        break;
                 }
 
                 //HACK: Fix this
                 std::cout << "Enter run length (in minutes): ";
-                movie.runLength = -1;
-                while (movie.runLength < 0)
+
+                // do-while :: = do S while (Eb );
+                //   post-test, S executes at least once
+                // 
+                //movie.runLength = -1;
+                //while (movie.runLength < 0)
+                do
                 {
                     std::cin >> movie.runLength;
 
@@ -237,7 +270,7 @@ void main()
                         std::cout << "ERROR: Run length must be at least 0" << std::endl;
                         //movie.runLength = 0;
                     }
-                }
+                } while (movie.runLength < 0);
 
                 std::cout << "Enter release year (1900-2100): ";
 
@@ -259,22 +292,26 @@ void main()
                 char isClassic;
                 std::cout << "Is classic (Y/N)? ";
 
-                bool done = false;
-                while (!done)
+                //bool done = false;
+                //while (!done)
+                do
                 {
                     std::cin >> isClassic;
 
                     if (isClassic == 'Y' || isClassic == 'y')
                     {
                         movie.isClassic = true;
-                        done = true;
+                        //done = true;
+                        break;
                     } else if (isClassic == 'N' || isClassic == 'n')
                     {
                         movie.isClassic = false;
-                        done = true;
+                        //done = true;
+                        break;
                     } else
                         std::cout << "ERROR: Must be Y or N" << std::endl; // != Y y N n
-                }
+                } while (true);
+
                 break;
             }
 
@@ -282,11 +319,47 @@ void main()
             case MenuCommand::Edit: std::cout << "Edit not implemented" << std::endl; break;
 
             //case 'D': //std::cout << "Delete not implemented" << std::endl; break;
-            case MenuCommand::Delete: std::cout << "Delete not implemented" << std::endl; break;
+            case MenuCommand::Delete:
+            {
+                // No movie = no work
+                if (movie.title == "")
+                    break;
+
+                // Confirm
+                std::cout << "Are you sure you want to delete '" << movie.title << "' (Y/N)? ";
+                bool confirm = false;
+                do
+                {
+                    char choice;
+                    std::cin >> choice;
+                    if (choice == 'Y' || choice == 'y')
+                    {
+                        confirm = true;
+                        break;
+                    } else if (choice == 'N' || choice == 'n')
+                    {
+                        confirm = false;
+                        break;
+                    };
+                } while (true);
+
+                //Delete
+                if (confirm)
+                    movie.title = "";
+
+                break;
+            }
 
             //case 'V': //std::cout << "View not implemented" << std::endl; break;
             case MenuCommand::View:
             {
+                //Movie must exist
+                if (movie.title == "")
+                {
+                    std::cout << "No movies in library" << std::endl;
+                    break;
+                }
+
                 //Display movie details
                 std::cout << movie.title << " (" << movie.releaseYear << ")" << std::endl;
                 std::cout << "Length (in minutes) " << movie.runLength << std::endl;
