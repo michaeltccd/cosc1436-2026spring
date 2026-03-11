@@ -25,24 +25,6 @@ struct Movie
     std::string description;  //Optional
 };
 
-//Enumeration - subrange of integers
-enum MENU_COMMAND
-{
-    //Enum values
-    MC_ADD = 1,    // const int ADD = 0
-    MC_EDIT = 2,   // = 1
-    MC_DELETE = 3, // const int DELETE = 3
-    MC_VIEW = 4,
-
-    MC_QUIT = 5
-};
-
-enum ENHANCED_MENU_COMMAND
-{
-    EMC_INSERT,
-    EMC_DELETE      // const int DELETE = 1
-};
-
 //C++ enum
 enum class MenuCommand
 {
@@ -53,62 +35,45 @@ enum class MenuCommand
     Quit = 5
 };
 
-enum class EnhancedMenuCommand
+
+// Function - a reusable block of code that does one logical operation
+
+// Function definition - Defines a function and its implemention
+//   func_defn ::= T id () { S* }
+// - functions are actions and should be named as verbs
+// - casing: camel or Pascal 
+
+/// @brief Displays a horizontal line.
+void DisplayLine()
 {
-    Insert,
-    Delete
+    //Logical operation
+    std::cout << "-------------" << std::endl;
 };
 
+/// @brief Resets the output colors to their default values.
+void ResetColors()
+{
+    std::cout << "\033[0m";
+};
+
+/// @brief Clears the input buffer of extra characters.
+void ClearInputBuffer()
+{
+    std::cin.ignore(INT32_MAX, '\n');        
+};
+
+/// @brief Sets the output colors for displaying errors.
+void SetErrorColor()
+{
+    std::cout << "\033[91m";
+};
+
+// Main is a special function
+// - It is the entry function of your program
+// - It's declaration can vary slightly
+// - You cannot call main directly
 void main()
 {
-    // Demo
-    //int someValue = 20; 
-    //
-    //// Side effect = consequences of evaluating the expression
-    ////++someValue;   // prefix inc: Increments someValue by 1 and stores it back into someValue (someValue += 1)
-    //std::cout << ++someValue << " " << someValue << std::endl;
-    //
-    ////someValue++;   // postfix inc: Increments someValue by 1 and stores it back into someValue (someValue += 1)
-    ////std::cout << someValue << std::endl;
-    //std::cout << someValue++ << " " << someValue << std::endl;
-    //
-    ////--someValue;   // prefix dec: Decrements someValue by 1 and stores it back into someValue (someValue -= 1)
-    ////std::cout << someValue << std::endl;
-    //std::cout << --someValue << " " << someValue << std::endl;
-    //
-    ////someValue--;   // postfix decc: Decrements someValue by 1 and stores it back into someValue (someValue -= 1)
-    ////    std::cout << someValue << std::endl;
-    //std::cout << someValue-- << " " << someValue << std::endl;
-    //
-    //someValue = 20;
-    //std::cout << someValue++ << " " << ++someValue << " " << someValue << std::endl;
-    //
-    //someValue = 20;
-    //if (++someValue > 30 || someValue-- < 10)
-    //    std::cout << "Is true: ";
-    //std::cout << someValue << std::endl;
-    // Demo nested loops
-    //int someValue = 10;
-    //for (int x = 0; x < 500; ++x)   // 50 iterations
-    //{        
-    //    for (int y = 0; y < 20; ++y)  //  20 * 50 = 1000
-    //    {
-    //        std::cout << x + y << std::endl;
-
-    //        if (y != 0 && y % 10 == 0)
-    //            break;
-    //    }
-
-    //    if (x != 0 && x % 10 == 0)
-    //    {
-    //        std::cout << "Quit? ";
-    //        int choice;
-    //        std::cin >> choice;
-    //        if (choice != 0)
-    //            break;
-    //    }
-    //}
-
     Movie movie;
 
     bool quit = false;
@@ -116,7 +81,8 @@ void main()
     {
         // Display menu
         std::cout << "Main Menu" << std::endl;
-        std::cout << "------------" << std::endl;
+        //std::cout << "------------" << std::endl;
+        DisplayLine();
         std::cout << "A)dd Movie" << std::endl;
         std::cout << "E)dit Movie" << std::endl;
         std::cout << "D)elete Movie" << std::endl;
@@ -125,13 +91,9 @@ void main()
         std::cout << "? ";
 
         //Handle user input
-        //MENU_COMMAND input = (MENU_COMMAND)0;
         MenuCommand input = (MenuCommand)0;
         char choice;
 
-        // While loop
-        //  while_stmt ::= while (Eb) S
-        //  Pre-test so S executes 0 or more times
         while (input == (MenuCommand)0)
         {
             std::cin >> choice;
@@ -152,51 +114,24 @@ void main()
                 case 'Q':
                 case 'q': input = MenuCommand::Quit; break;
 
-                default: std::cout << "ERROR: Invalid option" << std::endl; break;
+                default:
+                {
+                    SetErrorColor();
+                    std::cout << "ERROR: Invalid option" << std::endl; 
+                    ResetColors();
+                    break;                    
+                }
             }
         }
-
-        //input = ADD;
-        //std::cin >> (int)input;
-        //std::cout << (int)input;        
-
-        //Handle menu choice
-        //if (choice == 'A' || choice == 'a')
-        //    //TODO: Move addmovie logic here
-        //    std::cout << "Add not implemented" << std::endl;
-        //else if (choice == 'E' || choice == 'e')
-        //    std::cout << "Edit not implemented" << std::endl;
-        //else if (choice == 'D' || choice == 'd')
-        //    std::cout << "Delete not implemented" << std::endl;
-        //else if (choice == 'V' || choice == 'v')
-        //    std::cout << "View not implemented" << std::endl;
-        //else
-        //    std::cout << "ERROR: Invalid option" << std::endl;
-        // 
-        // switch_stmt ::= switch (E) { case_statement* }
-        // case_stmt ::= case label : S ;
-        // label ::= E (compile time constant)
-        // Replacement for: if (E == V) elseif (E == V2) elseif ...
-        // Limitations
-        //   1. Switch expression must be an integral or char
-        //   2. All case labels must be compile time constant integers
-        //   3. Case labels must be unique  
-        // To prevent fallthrough from one case to the next, end your case statements with break    
+        
         switch (input)
         {
-            //TODO: Add movie logic here...
-            //case 'A':
-            //{
-            //    //choice = 'a';
-            //    //std::cout << "hello";
-            //    std::cout << "Add not implemented" << std::endl; 
-            //    break;
-            //}
             case MenuCommand::Add:
             {
                 // Add movie logic                
                 //Reset input buffer
-                std::cin.ignore(INT32_MAX, '\n');
+                //std::cin.ignore(INT32_MAX, '\n');
+                ClearInputBuffer();
 
                 //Prompt for movie details
                 std::cout << "Enter title (required): ";
@@ -213,26 +148,7 @@ void main()
                 std::getline(std::cin, movie.description);
 
                 std::cout << "Enter genre: ";
-
-                // Cases for when expressions can be excluded
-                //for (;;) { /* infinite loop */ }
-                //for (; choice < 10; ++choice) {}
-
-                // May have multiples of each expression
-                //for (int x = 0, int y = 10; x < 20 && y > 0; ++x, --y)
-                //{}
-
-                // break_continue ::= break | continue
-                //  break - exits loop immediately
-                //  continue - exits current iteration and starts next iteration
-                //int genreCount = 0;
-                //while (genreCount < 5)
-//                int count = 0;
-                //For statement
-                //  for_stmt ::= for ( [init-expr] ; [test-expr] ; [update-expr]) S
-                //  init-expr ::= E (can be multiple, separated by commas, generally a variable decl
-                //  test-expr ::= Eb (can be multiple, separated by commas)
-                //  update-expr ::= E (can be multiple, separated by commas, generally prefix/postfix inc/dec)
+               
                 for (int count = 0; count < 5; ++count)
                 {
                     std::string genre;
@@ -255,11 +171,6 @@ void main()
                 //HACK: Fix this
                 std::cout << "Enter run length (in minutes): ";
 
-                // do-while :: = do S while (Eb );
-                //   post-test, S executes at least once
-                // 
-                //movie.runLength = -1;
-                //while (movie.runLength < 0)
                 do
                 {
                     std::cin >> movie.runLength;
@@ -292,8 +203,6 @@ void main()
                 char isClassic;
                 std::cout << "Is classic (Y/N)? ";
 
-                //bool done = false;
-                //while (!done)
                 do
                 {
                     std::cin >> isClassic;
@@ -318,7 +227,6 @@ void main()
             //case 'E': 
             case MenuCommand::Edit: std::cout << "Edit not implemented" << std::endl; break;
 
-            //case 'D': //std::cout << "Delete not implemented" << std::endl; break;
             case MenuCommand::Delete:
             {
                 // No movie = no work
@@ -350,7 +258,6 @@ void main()
                 break;
             }
 
-            //case 'V': //std::cout << "View not implemented" << std::endl; break;
             case MenuCommand::View:
             {
                 //Movie must exist
@@ -365,16 +272,6 @@ void main()
                 std::cout << "Length (in minutes) " << movie.runLength << std::endl;
                 std::cout << "Genre(s): " << movie.genres << std::endl;
                 std::cout << "User Rating: " << movie.userRating << std::endl;
-
-                // Conditional operator
-                //  conditional_op ::= Eb ? Et : Ef
-                // Replaces if-else when calculating a value
-                // Et and Ef must be same type
-                // Syntax may cause compiler errors in some cases so wrap in parens if necessary
-                //std::string classicIndicator = "No";
-                //if (movie.isClassic)
-                //    classicIndicator = "Yes";
-                //std::string classicIndicator = movie.isClassic ? "Yes" : "No";
                 std::cout << "Classic? " << (movie.isClassic ? "Yes" : "No") << std::endl;
 
                 std::cout << movie.description << std::endl;
