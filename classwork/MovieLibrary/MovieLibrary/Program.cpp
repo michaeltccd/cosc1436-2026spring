@@ -38,7 +38,8 @@ enum class MenuCommand
 // Function - a reusable block of code that does one logical operation
 
 // Function definition - Defines a function and its implemention
-//   func_defn ::= T id ( [parameter-list] ) { S* }
+//   func_decl ::= T id ( [parameter-list] )
+//   func_defn ::= func_decl { S* }
 //   parameter-list ::= parameter {, parameter}*
 //   parameter ::= T id
 // 
@@ -55,11 +56,42 @@ enum class MenuCommand
 //          Function can read and write parameter
 //          Changes to parameter have no impact on original argument
 
-void Multiply(int value, int multiple)
+enum class ConsoleColor
 {
-    // value = value * multiple
-    value *= multiple;    
-}
+    Black = 30,
+    Red = 31,
+    Green = 32,
+    Yellow = 33,
+    Blue = 34,
+    Magenta = 35,
+    Cyan = 36,
+    White = 37,
+
+    BrightRed = 91,
+    BrightGreen = 92,
+    BrightYellow = 93,
+    BrightBlue = 94,
+    BrightMagenta = 95,
+    BrightCyan = 96,
+    BrightWhite = 97,
+};
+
+//Prototypes / forward reference
+// Function declaration without the definition
+void DisplayError(std::string);
+void DisplayWarning(std::string);
+void ResetColors();
+void SetForegroundColor(ConsoleColor);
+
+//void SuperMultiply(int, int);
+
+//void Multiply(int value, int multiple)
+//{
+//    SuperMultiply(value, multiple);
+//
+//    // value = value * multiple
+//    value *= multiple;    
+//}
 
 /// @brief Displays a horizontal line.
 /// @param width Width of the line
@@ -71,50 +103,10 @@ void DisplayLine ( int width )
     std::cout << std::setfill('-') << std::setw(width) << "" << std::setfill(' ') << std::endl;
 };
 
-/// @brief Resets the output colors to their default values.
-void ResetColors()
-{
-    std::cout << "\033[0m";
-};
-
 /// @brief Clears the input buffer of extra characters.
 void ClearInputBuffer()
 {
     std::cin.ignore(INT32_MAX, '\n');        
-};
-
-enum class ConsoleColor
-{
-    Black = 30,
-    Red = 31,
-    Green = 32,
-    Yellow = 33,
-    Blue = 34,
-    Magenta = 35,
-    Cyan = 36,
-    White = 37,
-    
-    BrightRed = 91,
-    BrightGreen = 92,
-    BrightYellow = 93,
-    BrightBlue = 94,
-    BrightMagenta = 95,
-    BrightCyan = 96,
-    BrightWhite = 97,
-};
-
-/// @brief Sets the output colors for displaying errors.
-/// @param color Color to use for the foreground
-void SetForegroundColor ( ConsoleColor color )
-{
-    char buffer[10] = {0};
-    _itoa_s((int)color, buffer, 10, 10);
-
-    std::string value = "\033[";
-    value += buffer;
-    value += "m";
-    
-    std::cout << value;
 };
 
 /// @brief Displays a message.
@@ -150,15 +142,176 @@ void DisplayWarning(std::string message)
     ResetColors();
 }
 
+/// @brief Resets the output colors to their default values.
+void ResetColors()
+{
+    std::cout << "\033[0m";
+};
+
+/// @brief Sets the output colors for displaying errors.
+/// @param color Color to use for the foreground
+void SetForegroundColor(ConsoleColor color)
+{
+    char buffer[10] = {0};
+    _itoa_s((int)color, buffer, 10, 10);
+
+    std::string value = "\033[";
+    value += buffer;
+    value += "m";
+
+    std::cout << value;
+};
+
+//Demoing when recursive calls never end
+// return - exits function immediately
 void Fibonacci(int value)
 {
-    if (value >= 1)
+    //Validate parameters
+    if (value < 1)
+        return;
+
+    //1 * 2 * 3 * N
+    //value * Fibonacci(value - 1);
+    std::cout << value << std::endl;
+    Fibonacci(value - 1);    
+}
+
+/// @brief Confirms information from the user
+/// @param message Message to display
+/// @return true if yes or false if no
+bool Confirm(std::string message)
+{
+    // Confirm
+    message += " (Y/N)? ";
+    DisplayMessage(ConsoleColor::Cyan, message, false);
+    bool confirm = false;
+    do
     {
-        //1 * 2 * 3 * N
-        //value * Fibonacci(value - 1);
-        std::cout << value << std::endl;
-        Fibonacci(value - 1);
-    };
+        char choice;
+        std::cin >> choice;
+        if (choice == 'Y' || choice == 'y')
+            return true;
+        /*{
+            confirm = true;
+            break;*/
+        else if (choice == 'N' || choice == 'n')
+            return false;
+        /*{
+            confirm = false;
+            break;
+        };*/
+    } while (true);
+
+    //return false;
+}
+
+int ReadInt(std::string message, int minValue, int maxValue)
+{
+    std::cout << message;
+
+    int input;
+
+    do
+    {
+        std::cin >> input;          
+
+        if (input >= minValue && input <= maxValue)
+            return input;
+
+        //TODO: Fix later
+        DisplayError("Value is not in expected range");
+    } while (true);
+}
+
+/// @brief Reads a string from the user
+/// @param message Message to display
+/// @param required true to indicate a required value
+/// @return Input from user
+std::string ReadString(std::string message, bool required)
+{    
+    std::cout << message;
+
+    std::string input;
+    do
+    {
+        std::getline(std::cin, input);
+
+        //Validate
+        if (input != "" || !required)
+            return input;
+
+        DisplayError("Value is required");
+    } while (true);
+}
+
+Movie AddMovie()
+{    
+    //Reset input buffer
+    //std::cin.ignore(INT32_MAX, '\n');
+    ClearInputBuffer();
+
+    Movie movie;
+
+    //Title is required
+    movie.title = ReadString("Enter title (required): ", true);    
+    movie.description = ReadString("Enter description: ", false);    
+    
+    for (int count = 0; count < 5; ++count)
+    {
+        std::string genre = ReadString("Enter genre: ", false);        
+        if (genre == "")
+            break;
+
+        movie.genres += ", " + genre;
+    }
+
+    movie.runLength = ReadInt("Enter run length (in minutes): ", 0, 1000);
+    movie.releaseYear = ReadInt("Enter release year (1900-2100): ", 1900, 2100);
+
+    std::cout << "Enter the user rating (1.0-5.0): ";
+    std::cin >> movie.userRating;
+
+    movie.isClassic = Confirm("Is classic?");
+
+    return movie;
+}
+
+//TODO: Broke this...
+void DeleteMovie(Movie movie)
+{
+    // No movie = no work
+    if (movie.title == "")
+        return;
+
+    // Calling a function returning a value
+    //bool confirm = Confirm("Are you sure you want to delete '" + movie.title + "'");
+
+    //Confirm("Hello");
+
+    //Delete
+    //if (confirm)
+    if (Confirm("Are you sure you want to delete '" + movie.title + "'"))
+        movie.title = "";
+}
+
+void ViewMovie(Movie movie)
+{
+    //Movie must exist
+    if (movie.title == "")
+    {
+        //std::cout << "No movies in library" << std::endl;
+        DisplayWarning("No movies in library");
+        return;
+    }
+
+    //Display movie details
+    std::cout << movie.title << " (" << movie.releaseYear << ")" << std::endl;
+    std::cout << "Length (in minutes) " << movie.runLength << std::endl;
+    std::cout << "Genre(s): " << movie.genres << std::endl;
+    std::cout << "User Rating: " << movie.userRating << std::endl;
+    std::cout << "Classic? " << (movie.isClassic ? "Yes" : "No") << std::endl;
+
+    std::cout << movie.description << std::endl;
 }
 
 // Main is a special function
@@ -227,145 +380,10 @@ void main()
         
         switch (input)
         {
-            case MenuCommand::Add:
-            {
-                // Add movie logic                
-                //Reset input buffer
-                //std::cin.ignore(INT32_MAX, '\n');
-                ClearInputBuffer();
-
-                //Prompt for movie details
-                std::cout << "Enter title (required): ";
-                while (movie.title == "")
-                {
-                    std::getline(std::cin, movie.title);
-
-                    //Validate title
-                    if (movie.title == "")
-                        DisplayError("Title is required");
-                }
-
-                std::cout << "Enter description: ";
-                std::getline(std::cin, movie.description);
-
-                std::cout << "Enter genre: ";
-               
-                for (int count = 0; count < 5; ++count)
-                {
-                    std::string genre;
-                    std::getline(std::cin, genre);
-
-                    if (genre != "")
-                    {
-                        movie.genres += ", " + genre;
-                    } else
-                        break;
-                }
-
-                std::cout << "Enter run length (in minutes): ";
-                do
-                {
-                    std::cin >> movie.runLength;
-
-                    //Runlength >= 0
-                    if (movie.runLength < 0)
-                        DisplayError("Run length must be at least 0");
-                } while (movie.runLength < 0);
-
-                std::cout << "Enter release year (1900-2100): ";
-
-                //ReleaseYear >= 1900 and <= 2100        
-                while (movie.releaseYear < 1900 || movie.releaseYear > 2100)
-                {
-                    std::cin >> movie.releaseYear;
-
-                    if (movie.releaseYear < 1900 || movie.releaseYear > 2100)
-                        DisplayError("Release Year must be between 1900 and 2100");                    
-                }
-
-                std::cout << "Enter the user rating (1.0-5.0): ";
-                std::cin >> movie.userRating;
-
-                char isClassic;
-                std::cout << "Is classic (Y/N)? ";
-
-                do
-                {
-                    std::cin >> isClassic;
-
-                    if (isClassic == 'Y' || isClassic == 'y')
-                    {
-                        movie.isClassic = true;
-                        break;
-                    } else if (isClassic == 'N' || isClassic == 'n')
-                    {
-                        movie.isClassic = false;
-                        break;
-                    } else
-                        DisplayError("Must be Y or N");
-                } while (true);
-
-                break;
-            }
-
-            //case 'E': 
+            case MenuCommand::Add: movie = AddMovie();break;            
             case MenuCommand::Edit: DisplayWarning("Edit not implemented");
-
-            case MenuCommand::Delete:
-            {
-                // No movie = no work
-                if (movie.title == "")
-                    break;
-
-                // Confirm
-                //std::cout << "Are you sure you want to delete '" << movie.title << "' (Y/N)? ";
-                std::string message = "Are you sure you want to delete '";
-                message += movie.title;
-                message += "' (Y/N)? ";
-                DisplayMessage(ConsoleColor::Cyan, message, false);
-                bool confirm = false;
-                do
-                {
-                    char choice;
-                    std::cin >> choice;
-                    if (choice == 'Y' || choice == 'y')
-                    {
-                        confirm = true;
-                        break;
-                    } else if (choice == 'N' || choice == 'n')
-                    {
-                        confirm = false;
-                        break;
-                    };
-                } while (true);
-
-                //Delete
-                if (confirm)
-                    movie.title = "";
-
-                break;
-            }
-
-            case MenuCommand::View:
-            {
-                //Movie must exist
-                if (movie.title == "")
-                {
-                    //std::cout << "No movies in library" << std::endl;
-                    DisplayWarning("No movies in library");
-                    break;
-                }
-
-                //Display movie details
-                std::cout << movie.title << " (" << movie.releaseYear << ")" << std::endl;
-                std::cout << "Length (in minutes) " << movie.runLength << std::endl;
-                std::cout << "Genre(s): " << movie.genres << std::endl;
-                std::cout << "User Rating: " << movie.userRating << std::endl;
-                std::cout << "Classic? " << (movie.isClassic ? "Yes" : "No") << std::endl;
-
-                std::cout << movie.description << std::endl;
-                break;
-            }
+            case MenuCommand::Delete: DeleteMovie(movie); break;
+            case MenuCommand::View: ViewMovie(movie); break;
 
             case MenuCommand::Quit: quit = true; break;
 
