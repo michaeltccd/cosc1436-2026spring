@@ -41,7 +41,7 @@ enum class MenuCommand
 //   func_decl ::= T id ( [parameter-list] )
 //   func_defn ::= func_decl { S* }
 //   parameter-list ::= parameter {, parameter}*
-//   parameter ::= T id
+//   parameter ::= T id | T& id
 // 
 //   func_call ::= id ( [arg-list] );
 //   arg-list  ::= E {, E}* 
@@ -52,9 +52,18 @@ enum class MenuCommand
 // parameter ::= input to a function
 // parameter kinds
 //   1) Input (pass by value) (C++: T id)
-//          Copy of argument passed to function
-//          Function can read and write parameter
-//          Changes to parameter have no impact on original argument
+//        Copy of argument passed to function
+//        Function can read and write parameter
+//        Changes to parameter have no impact on original argument
+//   2) Output (C++: return type)
+//        Function provides the value
+//        Caller can either use the value or ignore it
+//   3) Input/output (pass by reference) (C++: T& id)
+//        For life of call, parameter and argument point to the same value in memory
+//        Changes made in the function impact the original argument
+//        Caller must use an lvalue as the argument
+//        Only used in cases where function needs to modify value or for performance reasons
+//        Use `T const&` to use pass by reference but not allow function to modify value
 
 enum class ConsoleColor
 {
@@ -93,10 +102,35 @@ void SetForegroundColor(ConsoleColor);
 //    value *= multiple;    
 //}
 
+// Variables
+//  Local - Declared inside a function and has a lifetime tied to the function call
+//  Global - Declared outside a function and has program lifetime
+//           Used when multiple functions need access to data that is impractical to pass as parameters
+//     Issues with globals (and why you will not use them, especially in this class)
+//     - Functions are no longer isolated
+//     - Initialization order is undefined
+//     - Anybody can read and write them
+
+//int g_standardConsoleLineLength = 80;
+//int g_maximumLineLength = g_standardConsoleLineLength;
+const int g_maximumLineLength = 80; //Only allowed case for a constant
+
 /// @brief Displays a horizontal line.
 /// @param width Width of the line
 void DisplayLine ( int width )
 {
+    //int maximumLineLength = -1;
+
+    {
+        double width = 24;
+        int someValue = width * g_maximumLineLength;
+    }
+
+    if (width < 0)
+        width = 0;
+    else if (width > g_maximumLineLength)
+        width = g_maximumLineLength;
+
     //int width = 10;
 
     //Logical operation
@@ -223,6 +257,11 @@ int ReadInt(std::string message, int minValue, int maxValue)
     } while (true);
 }
 
+int ReadInt(std::string message, int minValue)
+{
+    return ReadInt(message, minValue, INT32_MAX);
+}
+
 /// @brief Reads a string from the user
 /// @param message Message to display
 /// @param required true to indicate a required value
@@ -244,17 +283,35 @@ std::string ReadString(std::string message, bool required)
     } while (true);
 }
 
+// Function overloading - Overloading a function's name by parameter types
+//  1) Each overload must use the same name
+//  2) Each overload must have at least one parameter type that is different
+// Overload resolution - Process of identifying the unique function overloaded given function arguments
+//  1) Compiler starts with all overloads
+//  2) For each argument type, remove overloads that do not support the type (or through type coercion)
+//  3) Once all arguments checked
+//     A) If one function remains, use it
+//     B) If multiple functions remain but one is an exact match use it
+//     C) If multiple functions remain then error
+//     D) If no functions remain then error
+
+/// @brief Reads an optional string
+/// @param message Message to display
+/// @return Input from user
+std::string ReadString(std::string message)
+{
+    return ReadString(message, false);
+}
+
 Movie AddMovie()
-{    
-    //Reset input buffer
-    //std::cin.ignore(INT32_MAX, '\n');
+{            
     ClearInputBuffer();
 
     Movie movie;
 
-    //Title is required
+    //Title is required    
     movie.title = ReadString("Enter title (required): ", true);    
-    movie.description = ReadString("Enter description: ", false);    
+    movie.description = ReadString("Enter description: ");
     
     for (int count = 0; count < 5; ++count)
     {
@@ -265,7 +322,7 @@ Movie AddMovie()
         movie.genres += ", " + genre;
     }
 
-    movie.runLength = ReadInt("Enter run length (in minutes): ", 0, 1000);
+    movie.runLength = ReadInt("Enter run length (in minutes): ", 0);
     movie.releaseYear = ReadInt("Enter release year (1900-2100): ", 1900, 2100);
 
     std::cout << "Enter the user rating (1.0-5.0): ";
@@ -276,8 +333,12 @@ Movie AddMovie()
     return movie;
 }
 
-//TODO: Broke this...
-void DeleteMovie(Movie movie)
+//TODO: Fix this correctly later
+//Movie is pass by reference
+// Pass by reference (input/output) T& id
+//   Function can modify argument provided by caller
+//   Caller must pass a variable
+void DeleteMovie(Movie& movie)
 {
     // No movie = no work
     if (movie.title == "")
@@ -294,7 +355,9 @@ void DeleteMovie(Movie movie)
         movie.title = "";
 }
 
-void ViewMovie(Movie movie)
+// Pass by reference makes sense when: copying the value is too expensive or large or not allowed
+// Make the param constant to avoid modifications
+void ViewMovie(Movie const& movie)
 {
     //Movie must exist
     if (movie.title == "")
@@ -333,9 +396,9 @@ void main()
     while (!quit)
     {
         // Display menu
-        std::cout << "Main Menu" << std::endl;
-        //std::cout << "------------" << std::endl;
+        std::cout << "Main Menu" << std::endl;        
         DisplayLine(10);
+
         std::cout << "A)dd Movie" << std::endl;
         std::cout << "E)dit Movie" << std::endl;
         std::cout << "D)elete Movie" << std::endl;
