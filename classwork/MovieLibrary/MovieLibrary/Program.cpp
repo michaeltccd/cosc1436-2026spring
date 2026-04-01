@@ -35,35 +35,6 @@ enum class MenuCommand
     Quit = 5
 };
 
-// Function - a reusable block of code that does one logical operation
-
-// Function definition - Defines a function and its implemention
-//   func_decl ::= T id ( [parameter-list] )
-//   func_defn ::= func_decl { S* }
-//   parameter-list ::= parameter {, parameter}*
-//   parameter ::= T id | T& id
-// 
-//   func_call ::= id ( [arg-list] );
-//   arg-list  ::= E {, E}* 
-//                
-// - functions are actions and should be named as verbs
-// - casing: camel or Pascal 
-//
-// parameter ::= input to a function
-// parameter kinds
-//   1) Input (pass by value) (C++: T id)
-//        Copy of argument passed to function
-//        Function can read and write parameter
-//        Changes to parameter have no impact on original argument
-//   2) Output (C++: return type)
-//        Function provides the value
-//        Caller can either use the value or ignore it
-//   3) Input/output (pass by reference) (C++: T& id)
-//        For life of call, parameter and argument point to the same value in memory
-//        Changes made in the function impact the original argument
-//        Caller must use an lvalue as the argument
-//        Only used in cases where function needs to modify value or for performance reasons
-//        Use `T const&` to use pass by reference but not allow function to modify value
 
 enum class ConsoleColor
 {
@@ -85,34 +56,11 @@ enum class ConsoleColor
     BrightWhite = 97,
 };
 
-//Prototypes / forward reference
-// Function declaration without the definition
 void DisplayError(std::string);
 void DisplayWarning(std::string);
 void ResetColors();
 void SetForegroundColor(ConsoleColor);
 
-//void SuperMultiply(int, int);
-
-//void Multiply(int value, int multiple)
-//{
-//    SuperMultiply(value, multiple);
-//
-//    // value = value * multiple
-//    value *= multiple;    
-//}
-
-// Variables
-//  Local - Declared inside a function and has a lifetime tied to the function call
-//  Global - Declared outside a function and has program lifetime
-//           Used when multiple functions need access to data that is impractical to pass as parameters
-//     Issues with globals (and why you will not use them, especially in this class)
-//     - Functions are no longer isolated
-//     - Initialization order is undefined
-//     - Anybody can read and write them
-
-//int g_standardConsoleLineLength = 80;
-//int g_maximumLineLength = g_standardConsoleLineLength;
 const int g_maximumLineLength = 80; //Only allowed case for a constant
 
 /// @brief Displays a horizontal line.
@@ -196,20 +144,6 @@ void SetForegroundColor(ConsoleColor color)
     std::cout << value;
 };
 
-//Demoing when recursive calls never end
-// return - exits function immediately
-void Fibonacci(int value)
-{
-    //Validate parameters
-    if (value < 1)
-        return;
-
-    //1 * 2 * 3 * N
-    //value * Fibonacci(value - 1);
-    std::cout << value << std::endl;
-    Fibonacci(value - 1);    
-}
-
 /// @brief Confirms information from the user
 /// @param message Message to display
 /// @return true if yes or false if no
@@ -283,18 +217,6 @@ std::string ReadString(std::string message, bool required)
     } while (true);
 }
 
-// Function overloading - Overloading a function's name by parameter types
-//  1) Each overload must use the same name
-//  2) Each overload must have at least one parameter type that is different
-// Overload resolution - Process of identifying the unique function overloaded given function arguments
-//  1) Compiler starts with all overloads
-//  2) For each argument type, remove overloads that do not support the type (or through type coercion)
-//  3) Once all arguments checked
-//     A) If one function remains, use it
-//     B) If multiple functions remain but one is an exact match use it
-//     C) If multiple functions remain then error
-//     D) If no functions remain then error
-
 /// @brief Reads an optional string
 /// @param message Message to display
 /// @return Input from user
@@ -334,35 +256,22 @@ Movie AddMovie()
 }
 
 //TODO: Fix this correctly later
-//Movie is pass by reference
-// Pass by reference (input/output) T& id
-//   Function can modify argument provided by caller
-//   Caller must pass a variable
 void DeleteMovie(Movie& movie)
 {
     // No movie = no work
     if (movie.title == "")
         return;
 
-    // Calling a function returning a value
-    //bool confirm = Confirm("Are you sure you want to delete '" + movie.title + "'");
-
-    //Confirm("Hello");
-
-    //Delete
-    //if (confirm)
+    //Delete    
     if (Confirm("Are you sure you want to delete '" + movie.title + "'"))
         movie.title = "";
 }
 
-// Pass by reference makes sense when: copying the value is too expensive or large or not allowed
-// Make the param constant to avoid modifications
 void ViewMovie(Movie const& movie)
 {
     //Movie must exist
     if (movie.title == "")
     {
-        //std::cout << "No movies in library" << std::endl;
         DisplayWarning("No movies in library");
         return;
     }
@@ -377,20 +286,77 @@ void ViewMovie(Movie const& movie)
     std::cout << movie.description << std::endl;
 }
 
-// Main is a special function
-// - It is the entry function of your program
-// - It's declaration can vary slightly
-// - You cannot call main directly
+void ArrayDemo()
+{
+    const int MaximumValues = 10;
+    int values[MaximumValues];
+
+    // Accessing array elements
+    //    array_element ::= arr[index]
+    //    index ::= Ei
+    // You can read and write element values
+
+    // Index is specified inside brackets (integral)
+    // Index is always zero-based
+    //    Index 0 = Element 1 
+    //    Index 1 = Element 2
+    //    Index N = Element N+1
+    // Given an array of size M
+    //    There are M elements (1-M)
+    //    Index is 0 to M - 1
+    int thirdElement = values[2];
+
+    values[0] = 10;
+    values[1] = 20;
+    values[2] = 30;
+
+    //Iterate the elements in an array (0..<size)
+    // There is no way at runtime to correctly determine # of elements in the array
+    for (int index = 0; index < MaximumValues; ++index)
+    //int index = 0;
+    //for (int& value: values)
+    {
+        values[index] = index * 10;
+        //value = index++ * 10;
+    }
+
+    // for-range statement ::= for (T id : arr)
+    // Only works if the array is declared within the same function
+    //for (int index = 0; index < MaximumValues; ++index)
+    for (int value: values)
+    {
+        //int value = values[index];
+        //std::cout << values[index] << " ";
+        std::cout << value << " ";
+        value = 0;
+    }
+}
+
 void main()
 {
-    //Fibonacci(3);
+    //ArrayDemo();
 
-    /*int input = 10;
-    int multiple = 5;
-    Multiply(input, multiple);
-    std::cout << input << std::endl;*/
+    //TODO: Remove once no longer used
+    //Movie movie;
+    //Movie movie2, movie3, movie4; //Support more than 1 movie
+    const int MaximumMovies = 100;
+    Movie movies[MaximumMovies];         // Stores 100 movies
 
-    Movie movie;
+    //Array declarations  T id [ Eci ];
+    //  Elements are the values stored in an array
+    //  Names are plural
+    //  All elements have same type
+    //  DO NOT USE to store unrelated values just to save variables
+    //  Value inside the brackets is the size, number of elements, in the array
+    //  Size must be:
+    //  1. a compile time constant 
+    //  2. > than 0
+    //  3. Integer
+    //  Array is NOT part of the type
+    // Other names for arrays: collection, vector, set, list, array
+
+    // All arrays store their elements contiguously in memory
+    // Local variables are stored on stack so be careful of stack space
 
     bool quit = false;
     while (!quit)
@@ -432,9 +398,6 @@ void main()
 
                 default:
                 {
-                    //SetForegroundColor(ConsoleColor::BrightRed);
-                    //std::cout << "ERROR: Invalid option" << std::endl; 
-                    //ResetColors();
                     DisplayError("Invalid option");
                     break;                    
                 }
@@ -443,10 +406,40 @@ void main()
         
         switch (input)
         {
-            case MenuCommand::Add: movie = AddMovie();break;            
+            case MenuCommand::Add:
+            {
+                //Get the movie details
+                //Find the first element not being used in the array
+                //Store new movie there, if any
+                Movie movie = AddMovie();
+
+                int index;
+                for (index = 0; index < MaximumMovies; ++index)
+                {
+                    if (movies[index].title == "") //Find first element that is not assigned
+                    {
+                        movies[index] = movie;
+                        break;
+                    }
+                }
+
+                //TODO: Clean this up later
+                if (index == MaximumMovies)
+                    DisplayError("No more space available");
+
+                break;
+            }
             case MenuCommand::Edit: DisplayWarning("Edit not implemented");
-            case MenuCommand::Delete: DeleteMovie(movie); break;
-            case MenuCommand::View: ViewMovie(movie); break;
+            case MenuCommand::Delete: DeleteMovie(movies[0]); break;
+            case MenuCommand::View:
+            {
+                for (Movie movie: movies)
+                {
+                    if (movie.title != "")
+                        ViewMovie(movie);
+                }
+                break;             
+            }
 
             case MenuCommand::Quit: quit = true; break;
 
