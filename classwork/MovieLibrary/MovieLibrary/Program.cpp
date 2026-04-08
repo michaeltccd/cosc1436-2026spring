@@ -12,6 +12,8 @@ const int MaximumGenres = 5;
 struct Movie
 {
     //Fields
+    int id;
+
     std::string title;   // Required, not empty
     
     std::string genres[MaximumGenres];  
@@ -36,7 +38,6 @@ enum class MenuCommand
     View = 4,
     Quit = 5
 };
-
 
 enum class ConsoleColor
 {
@@ -227,6 +228,21 @@ std::string ReadString(std::string message)
     return ReadString(message, false);
 }
 
+/// @brief Find a movie given its ID
+/// @param movies 
+/// @param size 
+/// @param id 
+/// @return Index of movie, if found
+int FindMovieById(Movie movies[], int size, int id)
+{
+    for (int index = 0; index < size; ++index)
+        if (movies[index].id == id)
+            return index;
+
+    //Not found
+    return -1;
+}
+
 Movie AddMovie()
 {            
     ClearInputBuffer();
@@ -258,6 +274,30 @@ Movie AddMovie()
     return movie;
 }
 
+// Arrays as parameters are always open arrays (undefined size)
+// Array size always follows array parameter
+int AddMovie ( Movie movies[], int size )
+{
+    //Get the movie details
+    Movie movie = AddMovie();
+
+    static int id = 1;
+
+    //Find an empty spot in the array
+    for (int index = 0; index < size; ++index)
+    {
+        if (movies[index].title == "") //Find first element that is not assigned
+        {
+            movie.id = id++;
+
+            movies[index] = movie;
+            return index;
+        }
+    }
+
+    return -1;
+}
+
 //TODO: Fix this correctly later
 void DeleteMovie(Movie& movie)
 {
@@ -270,16 +310,35 @@ void DeleteMovie(Movie& movie)
         movie.title = "";
 }
 
+//Arrays are pass by value
+//Array behaves like pass by reference (parameter and argument point to the same array in memory)
+// Since the parameter is pass by value you cannot change what the argument refers to (the array)
+// Arrays can never be the return type of a function
+void DeleteMovies(Movie movies[], int size)
+{
+    //Determine movie to delete
+    int id = ReadInt("Enter ID of the movie to delete: ", 1);
+
+    //Find the movie
+    int index = FindMovieById(movies, size, id);
+    if (index < 0 || index >= size)
+    {
+        DisplayWarning("Movie not found");
+        return;
+    };
+
+    //Delete it
+    DeleteMovie(movies[index]);
+}
+
 void ViewMovie(Movie const& movie)
 {
     //Movie must exist
-    if (movie.title == "")
-    {
-        DisplayWarning("No movies in library");
-        return;
-    }
+    if (movie.title == "")    
+        return;    
 
     //Display movie details
+    std::cout << "[" << movie.id << "] ";
     std::cout << movie.title << " (" << movie.releaseYear << ")" << std::endl;
     std::cout << "Length (in minutes) " << movie.runLength << std::endl;
     //std::cout << "Genre(s): " << movie.genres << std::endl;
@@ -297,6 +356,17 @@ void ViewMovie(Movie const& movie)
     std::cout << "Classic? " << (movie.isClassic ? "Yes" : "No") << std::endl;
 
     std::cout << movie.description << std::endl;
+}
+
+void ViewMovies(Movie movies[], int size)
+{
+    //For range statement does not work with array parameters
+    //for (Movie movie: movies)
+    for (int index = 0; index < size; ++index)
+    {
+        if (movies[index].title != "")
+            ViewMovie(movies[index]);
+    }
 }
 
 void ArrayDemo()
@@ -402,10 +472,49 @@ void ArrayInitDemo()
     std::cout << std::endl;
 }
 
+void CopyArray(int target[], int targetSize, int source[], int sourceSize)
+{
+    int size = (sourceSize <= targetSize) ? sourceSize : targetSize;
+
+    for (int index = 0; index < size; ++index)
+        target[index] = source[index];
+}
+
+bool CompareArray(int left[], int leftSize, int right[], int rightSize)
+{
+    if (leftSize != rightSize)
+        return false;
+
+    for (int index = 0; index < leftSize; ++index)
+        if (left[index] != right[index])
+            return false;
+
+    return true;
+}
+
+void ArrayUsageDemo()
+{
+    //Things you can't do with array variables
+    int array1[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    int array2[10] = {2,4, 6, 8, 9, 10, 12, 14, 16, 18 };
+
+    //Copy them
+    //array2 = array1;
+    CopyArray(array2, 10, array1, 5);
+
+    //Compare them
+    //bool areEqual = array1 == array2;
+    bool areEqual = CompareArray(array1, 10, array2, 10);
+
+    //Display them
+    std::cout << array1 << std::endl;
+    //TODO: 
+}
+
 void main()
 {
     //ArrayDemo();
-    ArrayInitDemo();
+    //ArrayInitDemo();
 
     //TODO: Remove once no longer used
     //Movie movie;
@@ -479,39 +588,16 @@ void main()
         {
             case MenuCommand::Add:
             {
-                //Get the movie details
-                //Find the first element not being used in the array
-                //Store new movie there, if any
-                Movie movie = AddMovie();
-
-                int index;
-                for (index = 0; index < MaximumMovies; ++index)
-                {
-                    if (movies[index].title == "") //Find first element that is not assigned
-                    {
-                        movies[index] = movie;
-                        break;
-                    }
-                }
-
-                //TODO: Clean this up later
-                if (index == MaximumMovies)
+                int index = AddMovie(movies, MaximumMovies);                
+                if (index < 0)
                     DisplayError("No more space available");
 
                 break;
             }
             case MenuCommand::Edit: DisplayWarning("Edit not implemented");
-            case MenuCommand::Delete: DeleteMovie(movies[0]); break;
-            case MenuCommand::View:
-            {
-                for (Movie movie: movies)
-                {
-                    if (movie.title != "")
-                        ViewMovie(movie);
-                }
-                break;             
-            }
-
+            case MenuCommand::Delete: DeleteMovies(movies, MaximumMovies); break;
+            case MenuCommand::View: ViewMovies(movies, MaximumMovies); break;
+            
             case MenuCommand::Quit: quit = true; break;
 
             //Everything else
