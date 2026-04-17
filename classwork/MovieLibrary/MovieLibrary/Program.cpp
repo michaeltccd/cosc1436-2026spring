@@ -371,28 +371,80 @@ void ViewMovies(Movie movies[], int size)
     }
 }
 
-void main()
+void PointerDemo()
 {
-    const int MaximumMovies = 100;
-    Movie movies[MaximumMovies];         // Stores 100 movies
-
     // Pointer = Memory address (hopefully in the heap)
     int someValue = 100;  //Local variable, stored on call stack, 4 bytes in size
     int* ptrValue;        //Local variable, stored on call stack, 4 or 8 bytes in size
                           //Stores a memory address
+
+    // addressof_op ::= &E
+    //    Returns a pointer to the variable
+    //    Type is typeof(E)
     ptrValue = &someValue; //Capture memory address of local variable
     std::cout << "Pointer value = " << ptrValue << " "
-            << "Dereferenced value = " << *ptrValue << " "
-            << "Some Value address = " << &someValue << " "
-            << "Some Value value = " << someValue << " "
-            << std::endl;
+        << "Dereferenced value = " << *ptrValue << " "
+        << "Some Value address = " << &someValue << " "
+        << "Some Value value = " << someValue << " "
+        << std::endl;
 
-    //T* T = int *ptrValue = int
+//T* T = int *ptrValue = int
     *ptrValue = 200;
 
     //Initialize your pointers
     double* ptrRate = nullptr; // Preferred, always use this
-    *ptrRate = NULL; // Old C/C++ code, not recommended or used
+    //*ptrRate = NULL; // Old C/C++ code, not recommended or used        
+    ptrRate = NULL;
+    //*ptrRate = nullptr;
+
+    // Type compatibility rules
+    float* pFloat = nullptr;
+    int testInt = 10;
+    double testDouble = 4.5;
+    float testFloat = 8.7;
+
+    pFloat = &testFloat;   //float* = float*
+    *pFloat = testInt;     //float = int  (type coercion) 
+
+    // Pointers are same size but derefered values are not => ERROR    // 
+    //pFloat = &testDouble;  //float* = double*
+    //pFloat = &testInt;      //float* = int*  => ERROR    
+    // COMPILER requires that pointers exactly match (no type coercion)
+
+    // Validating pointers
+    //  1. Is not null (zero)
+    // X 2. Points to garbage (uninitialized)  0xCC, only in debugger
+    // X 3. Memory we don't own (if you deref to RW, immediately crash) 
+
+    // Testing for not-null
+    //  1. Long way, relational (only equality and inequality make sense)
+    if (pFloat != nullptr)    // if (boolValue == true)
+        *pFloat = 10;
+    //  2. C-way, don't use this
+    if (pFloat != NULL)
+        *pFloat = 10;
+    //  3. Short way, how most C++ programmers do it
+    if (pFloat)                // if (boolValue)
+        *pFloat = 10;
+
+    // Testing for null
+    if (pFloat == nullptr)
+        std::cout << "Is null" << std::endl;
+    if (!pFloat)
+        std::cout << "Is null" << std::endl;
+
+    //Pointers can point to array elements
+    double taxRates[5] = {1.2, 3.4, 5.6, 7.8, 9.0};
+    double* pTaxRate = nullptr;
+    pTaxRate = &taxRates[1];
+
+    Movie movie;
+    Movie* pMovie = &movie;
+
+    //Accessing a member
+    movie.title = "Jaws";       // Member access dot
+    (*pMovie).title = "Jaws 2"; // Member access the long way
+    pMovie->title = "Jaws 3";   // Member access for pointers ->
 
     // Naming pointers
     //   prefix with 'ptr' or 'p'
@@ -406,8 +458,73 @@ void main()
     //    T* means pointer to T means the dereferenced value is type T
     //    *(int*) => int
     //    * (double*) => double
+}
 
+void DynamicMemoryDemo()
+{
+    /*while (true)
+    {
+        Movie* pMovie = new Movie;
+        delete pMovie;
+    }*/
 
+    //Pointers to existing data (local variables)
+    //double taxRate = 4.5;
+    //double* pTaxRate = nullptr;
+
+    //do
+    //{
+    //    //Prompt user for a tax rate
+    //    std::cout << "Tax rate? ";
+    //    std::cin >> taxRate;
+    //    if (taxRate <= 0)
+    //        break;
+
+    //    // new_op ::= new T  => returns T*
+    //    //  Dynamically allocates memory for a given type
+    //    pTaxRate = new double;
+    //    *pTaxRate = taxRate;
+    //} while (true);
+
+    //std::cout << "Tax rate is " << *pTaxRate << std::endl;
+    Movie* pMovie = nullptr;
+    while (Confirm("Do you want to add a movie? "))
+    {
+        Movie movie = AddMovie();
+
+        //Before allocating new pointer ensure old pointer is cleaned up
+        //if (pMovie)
+            delete pMovie;
+
+        pMovie = new Movie;
+        pMovie->id = movie.id;
+        pMovie->title = movie.title;
+        pMovie->description = movie.description;
+        pMovie->runLength = movie.runLength;
+        pMovie->releaseYear = movie.releaseYear;
+        //pMovie->genres = movie.genres;
+        pMovie->genreCount = movie.genreCount;
+        pMovie->isClassic = movie.isClassic;
+    }
+
+    if (pMovie)
+    {
+        ViewMovie(*pMovie);
+        delete pMovie;
+        pMovie = nullptr;  //Reset pointer
+
+        delete pMovie;  //Calling delete on a bad or already freed pointer is undefined
+                        //Calling delete on nullptr is harmless
+    }
+}
+
+void main()
+{
+    DynamicMemoryDemo();
+
+    const int MaximumMovies = 100;
+    Movie movies[MaximumMovies];         // Stores 100 movies
+    
     bool quit = false;
     while (!quit)
     {
