@@ -233,25 +233,32 @@ std::string ReadString(std::string message)
 /// @param size Size of the array
 /// @param id ID to search for
 /// @return Index of movie, if found
-int FindMovieById(Movie movies[], int size, int id)
+int FindMovieById(Movie* movies[], int size, int id)
 {
     for (int index = 0; index < size; ++index)
-        if (movies[index].id == id)
+        if (movies[index] && movies[index]->id == id)
             return index;
 
     //Not found
     return -1;
 }
 
-Movie AddMovie()
+//Returning pointers from functions is allowed 
+// Use cases (cases when memory is still valid after func call returns)
+//   1. Dynamically allocated memory
+//   2. Returning address of element of array passed as a parameter
+//   3. Address of a global variable
+// Not use case
+//  1. Returning address of local variable or parameter
+Movie* AddMovie()
 {            
     ClearInputBuffer();
 
-    Movie movie;
+    Movie* ptrMovie = new Movie;
 
     //Title is required    
-    movie.title = ReadString("Enter title (required): ", true);    
-    movie.description = ReadString("Enter description: ");
+    ptrMovie->title = ReadString("Enter title (required): ", true);    
+    ptrMovie->description = ReadString("Enter description: ");
     
     for (int count = 0; count < MaximumGenres; ++count)
     {
@@ -259,40 +266,44 @@ Movie AddMovie()
         if (genre == "")
             break;
 
-        movie.genres[count] = genre;
-        ++movie.genreCount;
+        ptrMovie->genres[count] = genre;
+        ++ptrMovie->genreCount;
     }
 
-    movie.runLength = ReadInt("Enter run length (in minutes): ", 0);
-    movie.releaseYear = ReadInt("Enter release year (1900-2100): ", 1900, 2100);
+    ptrMovie->runLength = ReadInt("Enter run length (in minutes): ", 0);
+    ptrMovie->releaseYear = ReadInt("Enter release year (1900-2100): ", 1900, 2100);
 
     std::cout << "Enter the user rating (1.0-5.0): ";
-    std::cin >> movie.userRating;
+    std::cin >> ptrMovie->userRating;
 
-    movie.isClassic = Confirm("Is classic?");
+    ptrMovie->isClassic = Confirm("Is classic?");
 
-    return movie;
+    return ptrMovie;
 }
 
 /// @brief Adds a movie to the list
 /// @param movies Movie list
 /// @param size Size of list
 /// @return Index of added movie
-int AddMovie ( Movie movies[], int size )
+int AddMovie ( Movie* movies[], int size )
 {
     //Get the movie details
-    Movie movie = AddMovie();
+    Movie* ptrMovie = AddMovie();
+    if (!ptrMovie)
+        return -1;
 
     static int id = 1;
 
     //Find an empty spot in the array
     for (int index = 0; index < size; ++index)
     {
-        if (movies[index].title == "") //Find first element that is not assigned
+        //if (movies[index].title == "") //Find first element that is not assigned
+        if (!movies[index])
         {
-            movie.id = id++;
+            //movie.id = id++;
+            ptrMovie->id = id++;
 
-            movies[index] = movie;
+            movies[index] = ptrMovie;
             return index;
         }
     }
@@ -301,21 +312,21 @@ int AddMovie ( Movie movies[], int size )
 }
 
 //TODO: Fix this correctly later
-void DeleteMovie(Movie& movie)
+void DeleteMovie(Movie* movie)
 {
     // No movie = no work
-    if (movie.title == "")
+    if (!movie)
         return;
 
     //Delete    
-    if (Confirm("Are you sure you want to delete '" + movie.title + "'"))
-        movie.title = "";
+    if (Confirm("Are you sure you want to delete '" + movie->title + "'"))
+        delete movie;
 }
 
 /// @brief Delete a movie
 /// @param movies Movie list
 /// @param size Size of list
-void DeleteMovies(Movie movies[], int size)
+void DeleteMovies(Movie* movies[], int size)
 {
     //Determine movie to delete
     int id = ReadInt("Enter ID of the movie to delete: ", 1);
@@ -330,43 +341,49 @@ void DeleteMovies(Movie movies[], int size)
 
     //Delete it
     DeleteMovie(movies[index]);
+    movies[index] = nullptr;
 }
 
 /// @brief View movie details
 /// @param movie Movie to view
-void ViewMovie(Movie const& movie)
+void ViewMovie(Movie* ptrMovie)   //ViewMovie (Movie movie) //Pass by value
 {
+    //Movie tempMovie;
+    //ptrMovie = &tempMovie;   // Local variable, not the argument
+
     //Movie must exist
-    if (movie.title == "")    
+    //(*ptrMovie).title
+    if (ptrMovie->title == "")    
         return;    
 
     //Display movie details
-    std::cout << "[" << movie.id << "] ";
-    std::cout << movie.title << " (" << movie.releaseYear << ")" << std::endl;
-    std::cout << "Length (in minutes) " << movie.runLength << std::endl;    
+    std::cout << "[" << ptrMovie->id << "] ";
+    std::cout << ptrMovie->title << " (" << ptrMovie->releaseYear << ")" << std::endl;
+    std::cout << "Length (in minutes) " << ptrMovie->runLength << std::endl;    
     std::cout << "Genres: ";
-    for (int index = 0; index < movie.genreCount; ++index)
+    for (int index = 0; index < ptrMovie->genreCount; ++index)
     {
         if (index > 0)
             std::cout << ", ";
 
-        std::cout << movie.genres[index];
+        std::cout << ptrMovie->genres[index];
     }
     std::cout << std::endl;
 
-    std::cout << "User Rating: " << movie.userRating << std::endl;
-    std::cout << "Classic? " << (movie.isClassic ? "Yes" : "No") << std::endl;
+    std::cout << "User Rating: " << ptrMovie->userRating << std::endl;
+    std::cout << "Classic? " << (ptrMovie->isClassic ? "Yes" : "No") << std::endl;
 
-    std::cout << movie.description << std::endl;
+    std::cout << ptrMovie->description << std::endl;
 }
 
-void ViewMovies(Movie movies[], int size)
+void ViewMovies(Movie* movies[], int size)
 {
     //For range statement does not work with array parameters
     //for (Movie movie: movies)
     for (int index = 0; index < size; ++index)
     {
-        if (movies[index].title != "")
+        //if (movies[index].title != "")
+        if (movies[index])   //Checking for valid pointer
             ViewMovie(movies[index]);
     }
 }
@@ -490,26 +507,27 @@ void DynamicMemoryDemo()
     Movie* pMovie = nullptr;
     while (Confirm("Do you want to add a movie? "))
     {
-        Movie movie = AddMovie();
+        //Movie movie = AddMovie();
+        pMovie = AddMovie();
 
         //Before allocating new pointer ensure old pointer is cleaned up
         //if (pMovie)
-            delete pMovie;
+            //delete pMovie;
 
-        pMovie = new Movie;
-        pMovie->id = movie.id;
-        pMovie->title = movie.title;
-        pMovie->description = movie.description;
-        pMovie->runLength = movie.runLength;
-        pMovie->releaseYear = movie.releaseYear;
-        //pMovie->genres = movie.genres;
-        pMovie->genreCount = movie.genreCount;
-        pMovie->isClassic = movie.isClassic;
+        //pMovie = new Movie;
+        //pMovie->id = movie.id;
+        //pMovie->title = movie.title;
+        //pMovie->description = movie.description;
+        //pMovie->runLength = movie.runLength;
+        //pMovie->releaseYear = movie.releaseYear;
+        ////pMovie->genres = movie.genres;
+        //pMovie->genreCount = movie.genreCount;
+        //pMovie->isClassic = movie.isClassic;
     }
 
     if (pMovie)
     {
-        ViewMovie(*pMovie);
+        ViewMovie(pMovie);
         delete pMovie;
         pMovie = nullptr;  //Reset pointer
 
@@ -518,12 +536,42 @@ void DynamicMemoryDemo()
     }
 }
 
+// Steps to convert from pass by ref (variable/parameter) to pointer
+// 1. Change the parameter to a pointer
+// 2. Every reference to parameter changes to deref
+// 3. Validate the pointer
+// 4. (Caller) Change argument to pointer
+void CPointerVsReferenceDemo(Movie* movie)  //pass by value
+{
+    if (!movie)
+        return;
+
+    //(*movie).title = ;
+    movie->title = "New " + movie->title;
+}
+
+void PointerVsReferenceDemo(Movie& movie) //pass by ref
+{
+    //No need to check for null
+    movie.title = "New " + movie.title;    
+}
+
+void PointerToReferenceCaller()
+{
+    Movie movie;
+
+    Movie& refMovie = movie;
+
+    //PointerVsReferenceDemo(movie);  //(&movie)
+    CPointerVsReferenceDemo(&movie);  //(&movie)
+}
+
 void main()
 {
-    DynamicMemoryDemo();
+    //DynamicMemoryDemo();
 
     const int MaximumMovies = 100;
-    Movie movies[MaximumMovies];         // Stores 100 movies
+    Movie* movies[MaximumMovies] = {0};         // Stores 100 movies
     
     bool quit = false;
     while (!quit)
