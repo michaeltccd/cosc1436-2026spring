@@ -176,6 +176,11 @@ bool Confirm(std::string message)
     //return false;
 }
 
+/// @brief Reads an int32
+/// @param message Message to display
+/// @param minValue Minimum value allowed
+/// @param maxValue Maximum value allowed
+/// @return Integer value from the user
 int ReadInt(std::string message, int minValue, int maxValue)
 {
     std::cout << message;
@@ -194,6 +199,10 @@ int ReadInt(std::string message, int minValue, int maxValue)
     } while (true);
 }
 
+/// @brief Reads an int32
+/// @param message Message to display
+/// @param minValue Minimum value allowed (there is no maximum value)
+/// @return Integer value from the user
 int ReadInt(std::string message, int minValue)
 {
     return ReadInt(message, minValue, INT32_MAX);
@@ -311,7 +320,8 @@ int AddMovie ( Movie* movies[], int size )
     return -1;
 }
 
-//TODO: Fix this correctly later
+/// @brief Deletes a movie if the user confirms..
+/// @param movie Movie to delete
 void DeleteMovie(Movie* movie)
 {
     // No movie = no work
@@ -346,7 +356,7 @@ void DeleteMovies(Movie* movies[], int size)
 
 /// @brief View movie details
 /// @param movie Movie to view
-void ViewMovie(Movie* ptrMovie)   //ViewMovie (Movie movie) //Pass by value
+void ViewMovie(Movie const* ptrMovie)   //ViewMovie (Movie const& movie) //Pass by value
 {
     //Movie tempMovie;
     //ptrMovie = &tempMovie;   // Local variable, not the argument
@@ -376,6 +386,9 @@ void ViewMovie(Movie* ptrMovie)   //ViewMovie (Movie movie) //Pass by value
     std::cout << ptrMovie->description << std::endl;
 }
 
+/// @brief Views the movies in the library
+/// @param movies Movie array
+/// @param size Number of movies in array
 void ViewMovies(Movie* movies[], int size)
 {
     //For range statement does not work with array parameters
@@ -566,13 +579,105 @@ void PointerToReferenceCaller()
     CPointerVsReferenceDemo(&movie);  //(&movie)
 }
 
+void PointerArithmeticDemo()
+{
+    int intValue = 20;
+    int* pInt = &intValue;
+
+    intValue = intValue + 1;
+
+    //Pointer arithmetic adds/subtracts 1 element size, not 1 byte
+    // ptr + N => ptr + (N * sizeof(T))
+    int* pNewInt = pInt + 1;   
+    std::cout << "Old ptr " << pInt << " Old value " << *pInt << std::endl
+              << "New ptr " << pNewInt << " New value" << *pNewInt;
+
+    //Arrays and pointers are interchangeable
+    int values[10] = {0};
+    pInt = values;
+
+    //Array init
+    std::cout << std::endl;
+    for (int index = 0; index < 10; ++index)
+        values[index] = index + 1;
+    for (int index = 0; index < 10; ++index)
+        std::cout << values[index] << " ";
+    std::cout << std::endl;
+
+    //Can use array or pointer with array syntax
+    pInt = values;
+    for (int index = 0; index < 10; ++index)
+        pInt[index] = index + 2;
+    for (int index = 0; index < 10; ++index)
+        std::cout << values[index] << " ";
+    std::cout << std::endl;
+
+    //Can use array or pointer with pointer syntax
+    pInt = values;
+    for (int index = 0; index < 10; ++index)
+        *(pInt + index) = index + 3;
+    for (int index = 0; index < 10; ++index)
+        std::cout << values[index] << " ";
+    std::cout << std::endl;
+}
+
+void DynamicallyAllocateArrayDemo()
+{
+    int size;
+    std::cout << "How many elements do you want? ";
+    std::cin >> size;
+
+    //Dynamically allocating an array at runtime
+    // Size is not fixed
+    double* pValues = new double[size];
+    for (int index = 0; index < size; ++index)
+        pValues[index] = 0;
+
+    //To clean up an array allocated with new you must use delete array
+    //delete pValues;
+    delete[] pValues;
+    pValues = nullptr;
+}
+
+void DisplayString(char const* value)
+{
+    int intValue = 10;
+    const int constValue = 20;
+
+    int* pInt = nullptr;
+    int const* pConstInt = nullptr;
+
+    //const correctness - understanding and using const correctly
+    // nonconst values to const values
+    pConstInt = &intValue;
+    //*pConstInt = 30;  //ERROR
+       
+    // const values to nonconst values
+    //pInt = &constValue;  //ERROR
+    *pInt = 30;
+
+    const int& constRef = intValue; //Storing ref to non-const in constant
+    //pInt = &constRef;  //ERROR
+    //pInt = (int*)&constRef; //(int*)(const int*)
+
+    // static_cast<T>(E) -> C++ typecast that does some basic checking
+    // const_cast<T>(E) -> C++ removal of const from T
+    pInt = const_cast<int*>(&constRef);
+
+    std::cout << value << std::endl;
+}
+
 void main()
 {
+    DisplayString("Hello");
+
+    //DynamicallyAllocateArrayDemo();
+    //PointerArithmeticDemo();
     //DynamicMemoryDemo();
 
     const int MaximumMovies = 100;
     Movie* movies[MaximumMovies] = {0};         // Stores 100 movies
-    
+
     bool quit = false;
     while (!quit)
     {
